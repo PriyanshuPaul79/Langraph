@@ -26,8 +26,23 @@ def driver_performance(state:RaceState):
     return {"driver_analysis":result}
 
 
-def track
+def track_analysis(state:RaceState):
+    venue = state["race_name"]
+    prompt = f"you are given the name of a f1 track your task is to analyse the track and give insights about the track and also give insights about the last 5 races held there here is the {venue} track"
+    result = model.invoke(prompt).content
+    return {"track_analysis":result}
 
+def weather_analysis(state:RaceState):
+    venue = state["race_name"]
+    prompt = f"you are given the name of a f1 track your task is to analyse the weather conditions of the track and also give insights about the last 5 races held there here is the {venue} track"
+    result = model.invoke(prompt).content
+    return {"weather_analysis":result}
+
+
+def tire_analysis(state:RaceState):
+    venue = state["race_name"]
+    weather = state["weather_analysis"]
+    prompt
 
 graph = StateGraph(RaceState)
 graph.add_node("driver_performance",driver_performance)
