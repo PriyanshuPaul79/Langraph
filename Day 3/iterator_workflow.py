@@ -31,7 +31,7 @@ def create_post(state:LinkedinPost):
 def evaluation(state:LinkedinPost):
     content = state["content"]
     topic = state["topic"]
-    prompt = '''you are a professional evaluator whose task is to check weather the content is upto to point ot not according to the given topic here is the {topic} and here is the {content}.
+    prompt = f'''you are a professional evaluator whose task is to check weather the content is upto to point ot not according to the given topic here is the {topic} and here is the {content}.
     judge on the baasis of originality, humor, virality potential and format.
     Automatically reject it if exceed 280 character or if very generic. 
     respond only in structured format:
@@ -39,7 +39,7 @@ def evaluation(state:LinkedinPost):
     feedback: Give a feedback under 20 words so that onn the next try model can improve the quality mention the strenghts and weaknesses. 
     '''
 
-    structured_response = model.with_structured_output(EvaluationResult).invoke(prompt).content
+    structured_response = model.with_structured_output(EvaluationResult).invoke(prompt)
     return {
         "evaluation": structured_response       ["evaluation"], 
         "feedback": structured_response["feedback"]
@@ -55,14 +55,35 @@ def optimizer(state:LinkedinPost):
     result = model.invoke(prompt).content 
     return {"content":result, "iteration":current_iteration}
 
+
+def route_evaluation(state:LinkedinPost):
+    if state["evaluation"] == 'approved' or state["iteration"]>= state["max_iteration"]:
+        return "approved"
+    else :
+        return "try_again"
+
+
 graph.add_node("create_post",create_post)
 graph.add_node("evaluation",evaluation)
 graph.add_node("optimizer",optimizer)
 
 graph.add_edge(START,"create_post")
 graph.add_edge("create_post","evaluation")  
+graph.add_conditional_edges("evaluation",route_evaluation,{'approved':END, 'try_again':"optimizer"})
+graph.add_edge("optimizer","evaluation")
 
 
+workflow = graph.compile()
 
+inital_state = {'topic':"Jupyter notebook's role in ML development.",
+                'iteration':1,
+                'max_iteration':3,
+                'content':'',
+                'feedback':'',
+                'evaluation':'',
+                }
+
+output = workflow.invoke(inital_state)
+print(output)
   
 
