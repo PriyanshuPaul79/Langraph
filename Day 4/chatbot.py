@@ -49,4 +49,3 @@ while True:
     print("Chatbot:", bot['conversation'][-1].content)
 
 
-# now the problem we are facing is that the conversation is not being maintained and the chatbot is not able to remember the previous messages in the conversation. This is because we are only passing the current user input to the chatbot and not the entire conversation history. To fix this, we need to maintain a conversation history and pass it to the chatbot on each invocation. we generally use persistance of langgraph to either store the state data in ram or in database 
