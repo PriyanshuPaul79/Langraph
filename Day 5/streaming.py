@@ -63,3 +63,7 @@ for chunks,metadata in workflow.stream(
 # history = list(workflow.get_state_history(config=config1))
 # # this will show us the history of the states that we have gone through in this workflow with the checkpoint id and the state at that checkpoint id and the timestamp of when that checkpoint was created this
 # print(history)
+
+
+
+
