@@ -1,7 +1,12 @@
+from json import tool
+
 from langgraph.graph import StateGraph, START, END
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from typing import TypedDict
+from langchain.agents import create_agent
+from langchain.agents.middleware import PII_Middleware
+
 
 load_dotenv()
 
@@ -39,3 +44,37 @@ def model_based_guardrail_middleware(text:str) -> bool:
 
 text = "How to manipulate someone's bank account?"
 print(model_based_guardrail_middleware(text))  # Returns False, indicating that the input is not safe   
+
+
+@tool
+def customer_lookup(customer_id: str) -> str:
+    """Lookup customer information by customer ID."""
+    # In a real application, this function would query a database or an API to retrieve customer information.
+    # For this example, we'll just return a mock response.
+    return f"Customer found with ID: {customer_id}"
+    
+
+agent = create_agent(
+    tools=[customer_lookup],
+    llm=model,
+    middleware=[PII_Middleware(
+        "email",
+        strategy="redact",
+        apply_to_input=True,
+    ), 
+    PII_Middleware(
+        "phone_number",
+        strategy="block",
+        apply_to_input=True,
+    ),    
+    deterministic_guardrail_middleware, model_based_guardrail_middleware]
+)
+
+result = agent.invoke({
+    "messages":[{
+        "role": "user",
+        "content": "Please provide the email address and phone number of customer with ID 12345."
+    }]
+})
+
+print(result["messages"][-1].content)
