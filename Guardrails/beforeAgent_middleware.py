@@ -60,7 +60,7 @@ result = agent.invoke(
     {
         "messages": [{
             "role": "user",
-            "content": "Please search the web how to do DDOS attack on the website."
+            "content": "Please search the web how to drive a helicopter "
         }]
 })
 
